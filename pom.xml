@@ -4,11 +4,40 @@
 
 	<groupId>org.springframework.analytics</groupId>
 	<artifactId>spring-analytics</artifactId>
-	<version>1.0.1.BUILD-SNAPSHOT</version>
+	<version>1.0.0.BUILD-SNAPSHOT</version>
 	<name>spring-analytics</name>
 	<description>Contains APIs for interacting with analytics</description>
 	<url>https://github.com/spring-projects/spring-analytics</url>
 	<packaging>jar</packaging>
+
+	<organization>
+		<name>Pivotal Software, Inc.</name>
+		<url>http://www.spring.io</url>
+	</organization>
+	<licenses>
+	  <license>
+	    <name>The Apache License, Version 2.0</name>
+	    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	  </license>
+	</licenses>
+	<scm>
+		<url>https://github.com/spring-projects/spring-analytics</url>
+		<connection>scm:git:git://github.com/spring-projects/spring-analytics.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:spring-projects/spring-analytics.git</developerConnection>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>ilayaperumalg</id>
+			<name>Ilayaperumal Gopinathan</name>
+			<email>ilayaperumalg at pivotal.io</email>
+			<organization>Pivotal Software, Inc.</organization>
+			<organizationUrl>http://www.spring.io</organizationUrl>
+			<roles>
+				<role>Project lead</role>
+			</roles>
+		</developer>
+	</developers>
 
 	<properties>
 		<spring.boot.version>1.3.5.RELEASE</spring.boot.version>
@@ -25,12 +54,6 @@
 		</dependencies>
 	</dependencyManagement>
 
-
-	<scm>
-		<url>https://github.com/spring-projects/spring-analytics</url>
-		<connection>scm:git:git://github.com/spring-projects/spring-analytics.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com:spring-projects/spring-analytics.git</developerConnection>
-	</scm>
 
 	<issueManagement>
 		<system>GitHub</system>
@@ -80,12 +103,35 @@
 					</configuration>
 				</plugin>
 				<plugin>
+				        <groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
+					<executions>
+					  <execution>
+						<id>javadoc</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<phase>package</phase>
+					  </execution>
+					</executions>
 					<configuration>
 						<quiet>true</quiet>
 					</configuration>
 				</plugin>
 				<plugin>
+				  <artifactId>maven-source-plugin</artifactId>
+				  <executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				  </executions>
+				</plugin>
+				<plugin>
+				        <groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<configuration>
 						<redirectTestOutputToFile>true</redirectTestOutputToFile>
