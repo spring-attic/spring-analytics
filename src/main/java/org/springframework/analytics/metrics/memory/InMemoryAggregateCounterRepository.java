@@ -31,7 +31,7 @@ import org.springframework.analytics.metrics.AggregateCounterResolution;
 
 /**
  * In-memory aggregate counter with minute resolution.
- * <p/>
+ *
  * Note that the data is permanently accumulated, so will grow steadily in size until the host process is restarted.
  *
  * @author Luke Taylor

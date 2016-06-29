@@ -64,11 +64,14 @@ public interface AggregateCounterReader {
 
 	/**
 	 * Retrieve a single counter by name.
+	 * @param name the counter to query
+	 * @return an object containing an indexed array of the counts .
 	 */
 	AggregateCounter findOne(String name);
 
 	/**
 	 * List the names of all available aggregate counters.
+	 * @return the names of all available aggregate counters.
 	 */
 	List<String> list();
 }

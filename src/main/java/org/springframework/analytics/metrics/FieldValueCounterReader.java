@@ -27,11 +27,14 @@ public interface FieldValueCounterReader {
 
 	/**
 	 * Retrieve a single counter by name.
+	 * @param name the name of the counter
+	 * @return the counter
 	 */
 	FieldValueCounter findOne(String name);
 
 	/**
 	 * List the names of all available counters.
+	 * @return the names of all available counters.
 	 */
 	Collection<String> list();
 }

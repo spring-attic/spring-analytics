@@ -30,6 +30,10 @@ public final class MetricUtils {
 
 	/**
 	 * Concatenate {@code size} many values from the passed in arrays, starting at offset {@code start}.
+	 * @param arrays arrays to concatenate
+	 * @param start starting offset position
+	 * @param size number of elements
+	 * @return concatenated array
 	 */
 	public static long[] concatArrays(List<long[]> arrays, int start, int size) {
 		long[] result = new long[size];
@@ -63,6 +67,11 @@ public final class MetricUtils {
 		return result;
 	}
 
+	/**
+	 * Return the sum of values in the array
+	 * @param array the array to sum
+	 * @return the sum
+	 */
 	public static long sum(long[] array) {
 		if (array == null) {
 			return 0L;

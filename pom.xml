@@ -39,6 +39,10 @@
 		</developer>
 	</developers>
 
+	<prerequisites>
+		<maven>3.0.0</maven>
+	</prerequisites>
+
 	<properties>
 		<spring.boot.version>1.3.5.RELEASE</spring.boot.version>
 	</properties>
@@ -129,13 +133,6 @@
 						<phase>package</phase>
 					</execution>
 				  </executions>
-				</plugin>
-				<plugin>
-				        <groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<configuration>
-						<redirectTestOutputToFile>true</redirectTestOutputToFile>
-					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>

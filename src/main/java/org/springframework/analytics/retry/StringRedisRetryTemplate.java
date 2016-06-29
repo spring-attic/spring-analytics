@@ -34,8 +34,8 @@ public class StringRedisRetryTemplate extends RedisRetryTemplate<String, String>
 	 * Constructs a new <code>StringRedisTemplate</code> instance with a set of retry operations.
 	 *
 	 * {@link #afterPropertiesSet()} still need to be called if creating outside a spring managed context
-	 *
 	 * @param connectionFactory connection factory for creating new connections
+	 * @param retryOperations retryOperations instance
 	 */
 	public StringRedisRetryTemplate(RedisConnectionFactory connectionFactory, RetryOperations retryOperations) {
 		RedisSerializer<String> stringSerializer = new StringRedisSerializer();

@@ -26,6 +26,10 @@ public interface AggregateCounterWriter {
 
 	/**
 	 * Increments the named counter by a specific amount for the given instant.
+	 * @param name the name of the counter
+	 * @param amount the amount to increment
+	 * @param dateTime the time of the event
+	 * @return the total count
 	 */
 	long increment(String name, long amount, DateTime dateTime);
 
