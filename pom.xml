@@ -25,7 +25,18 @@
 		<connection>scm:git:git://github.com/spring-projects/spring-analytics.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com:spring-projects/spring-analytics.git</developerConnection>
 	</scm>
-
+	<developers>
+		<developer>
+			<id>mpollack</id>
+			<name>Mark Pollack</name>
+			<email>mpollack at pivotal.io</email>
+			<organization>Pivotal Software, Inc.</organization>
+			<organizationUrl>http://www.spring.io</organizationUrl>
+			<roles>
+				<role>lead</role>
+			</roles>
+		</developer>
+	</developers>
 	<prerequisites>
 		<maven>3.0.0</maven>
 	</prerequisites>
