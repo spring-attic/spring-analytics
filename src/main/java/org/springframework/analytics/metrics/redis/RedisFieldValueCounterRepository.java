@@ -16,6 +16,7 @@
 package org.springframework.analytics.metrics.redis;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -68,11 +69,14 @@ public class RedisFieldValueCounterRepository implements FieldValueCounterReposi
 	@Override
 	public Collection<String> list() {
 		Set<String> keys = redisTemplate.keys(getMetricKey("*"));
-		Set<String> names = new HashSet<>(keys.size());
-		for (String key : keys) {
-			names.add(getCounterName(key));
+		if (keys != null && !keys.isEmpty()) {
+			Set<String> names = new HashSet<>(keys.size());
+			for (String key : keys) {
+				names.add(getCounterName(key));
+			}
+			return names;
 		}
-		return names;
+		return Collections.EMPTY_SET;
 	}
 
 	@Override

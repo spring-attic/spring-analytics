@@ -239,8 +239,10 @@ public class RedisAggregateCounterRepository implements AggregateCounterReposito
 	public List<String> list() {
 		Set<String> aggregateCounters = this.setOperations.members(AGGREGATE_COUNTER_KEY_PREFIX);
 		List<String> list = new ArrayList<String>();
-		list.addAll(aggregateCounters);
-		Collections.sort(list);
+		if (aggregateCounters != null && !aggregateCounters.isEmpty()) {
+			list.addAll(aggregateCounters);
+			Collections.sort(list);
+		}
 		return list;
 	}
 
