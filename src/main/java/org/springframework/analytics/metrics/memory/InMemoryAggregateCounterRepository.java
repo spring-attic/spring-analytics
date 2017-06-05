@@ -42,21 +42,13 @@ public class InMemoryAggregateCounterRepository implements AggregateCounterRepos
 
 	private Map<String, InMemoryAggregateCounter> aggregates = new ConcurrentHashMap<String, InMemoryAggregateCounter>();
 
-	private Map<String, AggregateCounter> counters = new ConcurrentHashMap<String, AggregateCounter>();
-
-
 	public long increment(String name) {
 		return increment(name, 1L, DateTime.now());
-	}
-
-	public long decrement(String name) {
-		throw new UnsupportedOperationException("Can't decrement an AggregateCounter");
 	}
 
 	@Override
 	public void reset(String name) {
 		aggregates.remove(name);
-		counters.remove(name);
 	}
 
 	@Override
@@ -77,7 +69,7 @@ public class InMemoryAggregateCounterRepository implements AggregateCounterRepos
 
 	@Override
 	public AggregateCounter findOne(String name) {
-		return counters.get(name);
+		return getCounts(name, 1000, new DateTime(), AggregateCounterResolution.minute);
 	}
 
 	@Override
@@ -100,13 +92,6 @@ public class InMemoryAggregateCounterRepository implements AggregateCounterRepos
 			aggregates.put(name, c);
 		}
 		return c;
-	}
-
-	public AggregateCounter save(AggregateCounter counter) {
-		aggregates.remove(counter.getName());
-		counters.put(counter.getName(), counter);
-		increment(counter.getName(), counter.getTotal(), DateTime.now());
-		return counter;
 	}
 
 }
