@@ -4,7 +4,7 @@
 
 	<groupId>org.springframework.analytics</groupId>
 	<artifactId>spring-analytics</artifactId>
-	<version>1.1.3.BUILD-SNAPSHOT</version>
+	<version>1.1.3.RELEASE</version>
 	<name>spring-analytics</name>
 	<description>Contains APIs for interacting with analytics</description>
 	<url>https://github.com/spring-projects/spring-analytics</url>
