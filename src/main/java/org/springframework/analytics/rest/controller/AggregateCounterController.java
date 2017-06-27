@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.analytics.metrics.AggregateCounterRepository;
 import org.springframework.analytics.metrics.AggregateCounterResolution;
 import org.springframework.analytics.rest.domain.AggregateCounterResource;
 import org.springframework.boot.actuate.endpoint.mvc.MetricsMvcEndpoint;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -104,7 +105,10 @@ public class AggregateCounterController {
 			@RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) DateTime to,
 			@RequestParam(value = "resolution", defaultValue = "hour") AggregateCounterResolution resolution) {
 		List<String> names = new ArrayList<>(repository.list());
-		PagedResources<AggregateCounterResource> resources = pagedAssembler.toResource(new PageImpl<>(names), shallowAssembler);
+		long count = names.size();
+		long pageEnd = Math.min(count, pageable.getOffset() + pageable.getPageSize());
+		Page aggregateCounterPage = new PageImpl<>(names.subList(pageable.getOffset(), (int) pageEnd), pageable, names.size());
+		PagedResources<AggregateCounterResource> resources = pagedAssembler.toResource(aggregateCounterPage, shallowAssembler);
 		if (detailed) {
 			to = providedOrDefaultToValue(to);
 			from = providedOrDefaultFromValue(from, to, resolution);

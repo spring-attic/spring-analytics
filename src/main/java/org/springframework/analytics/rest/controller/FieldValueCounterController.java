@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,13 @@ import java.util.List;
 
 import org.springframework.analytics.metrics.FieldValueCounter;
 import org.springframework.analytics.metrics.FieldValueCounterRepository;
+import org.springframework.analytics.rest.domain.AggregateCounterResource;
 import org.springframework.analytics.rest.domain.FieldValueCounterResource;
 import org.springframework.analytics.rest.domain.MetricResource;
 import org.springframework.boot.actuate.endpoint.mvc.MetricsMvcEndpoint;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.ExposesResourceFor;
 import org.springframework.hateoas.PagedResources;
@@ -40,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Allows interaction with Field Value Counters.
  *
  * @author Eric Bottard
+ * @author Ilayaperumal Gopinathan
  */
 @RestController
 @RequestMapping("/metrics/field-value-counters")
@@ -85,10 +89,13 @@ public class FieldValueCounterController {
 	 * List Counters that match the given criteria.
 	 */
 	@RequestMapping(value = "", method = RequestMethod.GET)
-	public PagedResources<? extends MetricResource> list(
+	public PagedResources<? extends MetricResource> list(Pageable pageable,
 			PagedResourcesAssembler<String> pagedAssembler) {
 		List<String> names = new ArrayList<>(repository.list());
-		return pagedAssembler.toResource(new PageImpl<>(names), shallowAssembler);
+		long count = names.size();
+		long pageEnd = Math.min(count, pageable.getOffset() + pageable.getPageSize());
+		Page fieldValueCounterPage = new PageImpl<>(names.subList(pageable.getOffset(), (int) pageEnd), pageable, names.size());
+		return pagedAssembler.toResource(fieldValueCounterPage, shallowAssembler);
 	}
 
 	/**

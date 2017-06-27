@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Eric Bottard
  * @author Mark Fisher
+ * @author Ilayaperumal Gopinathan
  */
 @RestController
 @RequestMapping("/metrics/counters")
@@ -82,10 +83,12 @@ public class CounterController {
 			@RequestParam(value = "detailed", defaultValue = "false") boolean detailed) {
 		/* Page */ Iterable<Metric<?>> metrics = metricRepository.findAll(/* pageable */);
 		List<Metric<Double>> content = filterCounters(metrics);
-		Page<Metric<Double>> page = new PageImpl<>(content);
+		long count = content.size();
+		long pageEnd = Math.min(count, pageable.getOffset() + pageable.getPageSize());
+		Page counterPage = new PageImpl<>(content.subList(pageable.getOffset(), (int) pageEnd), pageable, content.size());
 		ResourceAssembler<Metric<Double>, ? extends MetricResource> assemblerToUse =
 				detailed ? counterResourceAssembler : shallowResourceAssembler;
-		return pagedAssembler.toResource(page, assemblerToUse);
+		return pagedAssembler.toResource(counterPage, assemblerToUse);
 	}
 
 	/**
