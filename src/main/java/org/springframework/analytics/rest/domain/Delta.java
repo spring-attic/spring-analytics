@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2012-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,38 +16,22 @@
 
 package org.springframework.analytics.rest.domain;
 
+import java.util.Date;
+
 /**
- * The REST representation of a Counter.
+ * A value object representing an increment in a metric value (usually a counter).
  *
- * @author Eric Bottard
+ * @param <T> the value type
+ * @author Dave Syer
  */
-public class CounterResource extends MetricResource {
+public class Delta<T extends Number> extends Metric<T> {
 
-	/**
-	 * The value for the counter.
-	 */
-	private long value;
-
-
-	/**
-	 * No-arg constructor for serialization frameworks.
-	 */
-	protected CounterResource() {
-
+	public Delta(String name, T value, Date timestamp) {
+		super(name, value, timestamp);
 	}
 
-	public CounterResource(String name, long value) {
-		super(name);
-		this.value = value;
-	}
-
-	/**
-	 * Return the value for the counter.
-	 *
-	 * @return counter value
-	 */
-	public long getValue() {
-		return value;
+	public Delta(String name, T value) {
+		super(name, value);
 	}
 
 }

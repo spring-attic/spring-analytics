@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.springframework.analytics.test;
+package org.springframework.analytics.test.support;
 
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
 /**
  * JUnit {@link org.junit.Rule} that detects the fact that a Redis server is running on localhost.
@@ -24,7 +24,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
  * @author Gary Russell
  * @author Eric Bottard
  */
-public class RedisTestSupport extends AbstractExternalResourceTestSupport<JedisConnectionFactory> {
+public class RedisTestSupport extends AbstractExternalResourceTestSupport<LettuceConnectionFactory> {
 
 	public RedisTestSupport() {
 		super("REDIS");
@@ -32,7 +32,7 @@ public class RedisTestSupport extends AbstractExternalResourceTestSupport<JedisC
 
 	@Override
 	protected void obtainResource() throws Exception {
-		resource = new JedisConnectionFactory();
+		resource = new LettuceConnectionFactory();
 		resource.afterPropertiesSet();
 		resource.getConnection().close();
 	}

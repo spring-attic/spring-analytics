@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.analytics.test;
-
-import static org.junit.Assert.fail;
+package org.springframework.analytics.test.support;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,8 +23,9 @@ import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
 import org.springframework.util.Assert;
+
+import static org.junit.Assert.fail;
 
 /**
  * Abstract base class for JUnit {@link Rule}s that detect the presence of some external

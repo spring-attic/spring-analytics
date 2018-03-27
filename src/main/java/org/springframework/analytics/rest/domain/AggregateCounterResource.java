@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,13 @@
 
 package org.springframework.analytics.rest.domain;
 
-import java.util.Date;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Date;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * The REST representation of an Aggregate Count.
@@ -49,13 +48,16 @@ public class AggregateCounterResource extends MetricResource {
 
 	/**
 	 * Add a data point to the set.
+	 *
+	 * @param when date
+	 * @param value to set
 	 */
 	public void addValue(Date when, long value) {
 		values.put(when, value);
 	}
 
 	/**
-	 * Returns a date-sorted view of counts.
+	 * @return a date-sorted view of counts.
 	 */
 	public SortedMap<Date, Long> getValues() {
 		return values;

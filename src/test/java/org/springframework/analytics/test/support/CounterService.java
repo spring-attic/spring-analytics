@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2012-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,40 +14,31 @@
  * limitations under the License.
  */
 
-package org.springframework.analytics.rest.domain;
+package org.springframework.analytics.test.support;
 
 /**
- * The REST representation of a Counter.
+ * A service that can be used to increment, decrement and reset a named counter value.
  *
- * @author Eric Bottard
+ * @author Dave Syer
  */
-public class CounterResource extends MetricResource {
+public interface CounterService {
 
 	/**
-	 * The value for the counter.
+	 * Increment the specified counter by 1.
+	 * @param metricName the name of the counter
 	 */
-	private long value;
-
+	void increment(String metricName);
 
 	/**
-	 * No-arg constructor for serialization frameworks.
+	 * Decrement the specified counter by 1.
+	 * @param metricName the name of the counter
 	 */
-	protected CounterResource() {
-
-	}
-
-	public CounterResource(String name, long value) {
-		super(name);
-		this.value = value;
-	}
+	void decrement(String metricName);
 
 	/**
-	 * Return the value for the counter.
-	 *
-	 * @return counter value
+	 * Reset the specified counter.
+	 * @param metricName the name of the counter
 	 */
-	public long getValue() {
-		return value;
-	}
+	void reset(String metricName);
 
 }
