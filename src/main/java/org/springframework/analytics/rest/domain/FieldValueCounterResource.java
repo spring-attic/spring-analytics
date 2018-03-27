@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,11 @@
 
 package org.springframework.analytics.rest.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * The REST representation of a Field Value Counter.
@@ -49,6 +49,8 @@ public class FieldValueCounterResource extends MetricResource {
 
 	/**
 	 * Return the values for the counter.
+	 *
+	 * @return counter values
 	 */
 	public Map<String, Double> getValues() {
 		return values;

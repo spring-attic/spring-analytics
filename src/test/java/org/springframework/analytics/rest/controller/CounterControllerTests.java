@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,18 @@
 
 package org.springframework.analytics.rest.controller;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
-import static org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType.HAL;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-
-import org.springframework.analytics.test.RedisTestSupport;
+import org.springframework.analytics.rest.domain.Metric;
+import org.springframework.analytics.metrics.redis.RedisMetricRepository;
+import org.springframework.analytics.test.support.CounterService;
+import org.springframework.analytics.test.support.DefaultCounterService;
+import org.springframework.analytics.test.support.RedisTestSupport;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.CounterService;
-import org.springframework.boot.actuate.metrics.Metric;
-import org.springframework.boot.actuate.metrics.repository.MetricRepository;
-import org.springframework.boot.actuate.metrics.repository.redis.RedisMetricRepository;
-import org.springframework.boot.actuate.metrics.writer.DefaultCounterService;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,10 +44,19 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType.HAL;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
  * Tests for {@link CounterController}.
  *
  * @author Ilayaperumal Gopinathan
+ * @author Soby Chacko
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {CounterControllerTests.Config.class})
@@ -66,8 +66,11 @@ public class CounterControllerTests {
 	@Rule
 	public RedisTestSupport redisTestSupport = new RedisTestSupport();
 
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+
 	@Autowired
-	private MetricRepository repository;
+	private RedisMetricRepository repository;
 
 	@Autowired
 	private CounterService counterService;
@@ -102,6 +105,9 @@ public class CounterControllerTests {
 
 	@Test
 	public void testGetAndDelete() throws Exception {
+		exception.expect(Throwable.class);
+		exception.expectMessage("java.lang.IllegalArgumentException: foo");
+
 		counterService.increment("foo");
 		counterService.increment("foo");
 		mockMvc.perform(
@@ -116,7 +122,7 @@ public class CounterControllerTests {
 
 		mockMvc.perform(
 				get("/metrics/counters/foo").accept(MediaType.APPLICATION_JSON))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isInternalServerError());
 
 	}
 
@@ -131,18 +137,17 @@ public class CounterControllerTests {
 		RedisConnectionFactory redisConnectionFactory;
 
 		@Bean
-		public MetricRepository counterRepository() {
+		public RedisMetricRepository counterRepository() {
 			return new RedisMetricRepository(redisConnectionFactory);
 		}
 
-
 		@Bean
-		public CounterController counterController(MetricRepository metricRepository) {
+		public CounterController counterController(RedisMetricRepository metricRepository) {
 			return new CounterController(metricRepository);
 		}
 
 		@Bean
-		public CounterService counterService(MetricRepository metricRepository) {
+		public CounterService counterService(RedisMetricRepository metricRepository) {
 			return new DefaultCounterService(metricRepository);
 		}
 
