@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 the original author or authors.
+ * Copyright 2015-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,8 @@ import java.util.List;
 
 import org.springframework.analytics.metrics.FieldValueCounter;
 import org.springframework.analytics.metrics.FieldValueCounterRepository;
-import org.springframework.analytics.rest.domain.AggregateCounterResource;
 import org.springframework.analytics.rest.domain.FieldValueCounterResource;
 import org.springframework.analytics.rest.domain.MetricResource;
-import org.springframework.boot.actuate.endpoint.mvc.MetricsMvcEndpoint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import static java.lang.Math.toIntExact;
 
 /**
  * Allows interaction with Field Value Counters.
@@ -62,31 +62,40 @@ public class FieldValueCounterController {
 
 	/**
 	 * Retrieve information about a specific counter.
+	 *
+	 * @param name name
+	 * @return counter information
 	 */
 	@RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	public FieldValueCounterResource display(@PathVariable("name") String name) {
 		FieldValueCounter counter = repository.findOne(name);
 		if (counter == null) {
-			throw new MetricsMvcEndpoint.NoSuchMetricException(name);
+			throw new NoSuchMetricException(name);
 		}
 		return deepAssembler.toResource(counter);
 	}
 
 	/**
 	 * Delete (reset) a specific counter.
+	 *
+	 * @param name name
 	 */
 	@RequestMapping(value = "/{name}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.OK)
 	protected void delete(@PathVariable("name") String name) {
 		FieldValueCounter counter = repository.findOne(name);
 		if (counter == null) {
-			throw new MetricsMvcEndpoint.NoSuchMetricException(name);
+			throw new NoSuchMetricException(name);
 		}
 		repository.reset(name);
 	}
 
 	/**
 	 * List Counters that match the given criteria.
+	 *
+	 * @param pageable {@link Pageable}
+	 * @param pagedAssembler {@link PagedResourcesAssembler}
+	 * @return counters
 	 */
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public PagedResources<? extends MetricResource> list(Pageable pageable,
@@ -94,7 +103,7 @@ public class FieldValueCounterController {
 		List<String> names = new ArrayList<>(repository.list());
 		long count = names.size();
 		long pageEnd = Math.min(count, pageable.getOffset() + pageable.getPageSize());
-		Page fieldValueCounterPage = new PageImpl<>(names.subList(pageable.getOffset(), (int) pageEnd), pageable, names.size());
+		Page fieldValueCounterPage = new PageImpl<>(names.subList(toIntExact(pageable.getOffset()), toIntExact(pageEnd)), pageable, names.size());
 		return pagedAssembler.toResource(fieldValueCounterPage, shallowAssembler);
 	}
 

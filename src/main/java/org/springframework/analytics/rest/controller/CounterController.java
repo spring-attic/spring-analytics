@@ -16,14 +16,10 @@
 
 package org.springframework.analytics.rest.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.springframework.analytics.rest.domain.Metric;
+import org.springframework.analytics.metrics.redis.RedisMetricRepository;
 import org.springframework.analytics.rest.domain.CounterResource;
 import org.springframework.analytics.rest.domain.MetricResource;
-import org.springframework.boot.actuate.endpoint.mvc.MetricsMvcEndpoint;
-import org.springframework.boot.actuate.metrics.Metric;
-import org.springframework.boot.actuate.metrics.repository.MetricRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -34,12 +30,12 @@ import org.springframework.hateoas.ResourceAssembler;
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Math.toIntExact;
 
 /**
  * Allows interaction with Counters.
@@ -55,7 +51,7 @@ public class CounterController {
 
 	public static final String COUNTER_PREFIX = "counter.";
 
-	private final MetricRepository metricRepository;
+	private final RedisMetricRepository metricRepository;
 
 	private final ResourceAssembler<Metric<Double>, CounterResource> counterResourceAssembler =
 			new DeepCounterResourceAssembler();
@@ -64,17 +60,22 @@ public class CounterController {
 			new ShallowMetricResourceAssembler();
 
 	/**
-	 * Create a {@link CounterController} that delegates to the provided {@link MetricRepository}.
+	 * Create a {@link CounterController} that delegates to the provided {@link RedisMetricRepository}.
 	 *
-	 * @param metricRepository the {@link MetricRepository} used by this controller
+	 * @param metricRepository the {@link RedisMetricRepository} used by this controller
 	 */
-	public CounterController(MetricRepository metricRepository) {
+	public CounterController(RedisMetricRepository metricRepository) {
 		Assert.notNull(metricRepository, "metricRepository must not be null");
 		this.metricRepository = metricRepository;
 	}
 
 	/**
 	 * List Counters that match the given criteria.
+	 *
+	 * @param pageable {@link Pageable}
+	 * @param pagedAssembler {@link PagedResourcesAssembler}
+	 * @param detailed details
+	 * @return {@link PagedResources}
 	 */
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public PagedResources<? extends MetricResource> list(
@@ -85,7 +86,8 @@ public class CounterController {
 		List<Metric<Double>> content = filterCounters(metrics);
 		long count = content.size();
 		long pageEnd = Math.min(count, pageable.getOffset() + pageable.getPageSize());
-		Page counterPage = new PageImpl<>(content.subList(pageable.getOffset(), (int) pageEnd), pageable, content.size());
+		Page counterPage = new PageImpl<>(content.subList(toIntExact(pageable.getOffset()), toIntExact(pageEnd)),
+				pageable, content.size());
 		ResourceAssembler<Metric<Double>, ? extends MetricResource> assemblerToUse =
 				detailed ? counterResourceAssembler : shallowResourceAssembler;
 		return pagedAssembler.toResource(counterPage, assemblerToUse);
@@ -93,6 +95,9 @@ public class CounterController {
 
 	/**
 	 * Retrieve information about a specific counter.
+	 *
+	 * @param name name
+	 * @return counter information
 	 */
 	@RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	public CounterResource display(@PathVariable("name") String name) {
@@ -102,6 +107,8 @@ public class CounterController {
 
 	/**
 	 * Delete (reset) a specific counter.
+	 *
+	 * @param name to delete
 	 */
 	@RequestMapping(value = "/{name}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.OK)
@@ -112,13 +119,16 @@ public class CounterController {
 
 	/**
 	 * Find a given counter, taking care of name conversion between the Spring Boot domain and our domain.
-	 * @throws MetricsMvcEndpoint.NoSuchMetricException if the counter does not exist
+	 *
+	 * @param name name
+	 * @return counter
+	 * @throws NoSuchMetricException if the counter does not exist
 	 */
 	private Metric<Double> findCounter(@PathVariable("name") String name) {
 		@SuppressWarnings("unchecked")
 		Metric<Double> c = (Metric<Double>) metricRepository.findOne(COUNTER_PREFIX + name);
 		if (c == null) {
-			throw new MetricsMvcEndpoint.NoSuchMetricException(name);
+			throw new NoSuchMetricException(name);
 		}
 		return c;
 	}

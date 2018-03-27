@@ -34,6 +34,8 @@ import org.springframework.analytics.metrics.AggregateCounterResolution;
 import org.springframework.analytics.metrics.MetricUtils;
 import org.springframework.util.Assert;
 
+import static java.lang.Math.toIntExact;
+
 /**
  * A counter that tracks integral values but also remembers how its value was distributed over time.
  * 
@@ -173,7 +175,7 @@ class InMemoryAggregateCounter {
 
 	private int daysInYear(int year) {
 		Duration d = new Duration(new DateTime(year, 1, 1, 0, 0), new DateTime(year + 1, 1, 1, 0, 0));
-		return (int)d.getStandardDays();
+		return toIntExact(d.getStandardDays());
 	}
 
 	synchronized long increment(long amount) {

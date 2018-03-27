@@ -29,7 +29,6 @@ import org.springframework.analytics.metrics.AggregateCounter;
 import org.springframework.analytics.metrics.AggregateCounterRepository;
 import org.springframework.analytics.metrics.AggregateCounterResolution;
 import org.springframework.analytics.rest.domain.AggregateCounterResource;
-import org.springframework.boot.actuate.endpoint.mvc.MetricsMvcEndpoint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +46,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import static java.lang.Math.toIntExact;
 
 /**
  * Allows interaction with Aggregate Counters.
@@ -71,31 +72,45 @@ public class AggregateCounterController {
 
 	/**
 	 * Retrieve information about a specific aggregate counter.
+	 *
+	 * @param name  counter name
+	 * @return {@link AggregateCounterResource}
+	 *
 	 */
 	@RequestMapping(value = "/{name}", method = RequestMethod.GET)
 	public AggregateCounterResource display(@PathVariable("name") String name) {
 		AggregateCounter counter = repository.findOne(name);
 		if (counter == null) {
-			throw new MetricsMvcEndpoint.NoSuchMetricException(name);
+			throw new NoSuchMetricException(name);
 		}
 		return deepAssembler.toResource(counter);
 	}
 
 	/**
 	 * Delete (reset) a specific counter.
+	 *
+	 * @param name counter name
 	 */
 	@RequestMapping(value = "/{name}", method = RequestMethod.DELETE)
 	@ResponseStatus(HttpStatus.OK)
 	protected void delete(@PathVariable("name") String name) {
 		AggregateCounter counter = repository.findOne(name);
 		if (counter == null) {
-			throw new MetricsMvcEndpoint.NoSuchMetricException(name);
+			throw new NoSuchMetricException(name);
 		}
 		repository.reset(name);
 	}
 
 	/**
 	 * List Counters that match the given criteria.
+	 *
+	 * @param pageable {@link Pageable}
+	 * @param pagedAssembler {@link PagedResourcesAssembler}
+	 * @param detailed detailed info
+	 * @param from from date
+ 	 * @param to to date
+	 * @param resolution {@link AggregateCounterResolution}
+	 * @return list counters
 	 */
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public PagedResources<AggregateCounterResource> list(
@@ -107,7 +122,7 @@ public class AggregateCounterController {
 		List<String> names = new ArrayList<>(repository.list());
 		long count = names.size();
 		long pageEnd = Math.min(count, pageable.getOffset() + pageable.getPageSize());
-		Page aggregateCounterPage = new PageImpl<>(names.subList(pageable.getOffset(), (int) pageEnd), pageable, names.size());
+		Page aggregateCounterPage = new PageImpl<>(names.subList( toIntExact(pageable.getOffset()), toIntExact(pageEnd)), pageable, names.size());
 		PagedResources<AggregateCounterResource> resources = pagedAssembler.toResource(aggregateCounterPage, shallowAssembler);
 		if (detailed) {
 			to = providedOrDefaultToValue(to);
@@ -131,6 +146,7 @@ public class AggregateCounterController {
 	 *                   buckets)
 	 * @param to         the end-time for the interval, default "now"
 	 * @param resolution the size of buckets to aggregate, <i>e.g.</i> hourly, daily, <i>etc.</i> (default "hour")
+	 * @return counts
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
